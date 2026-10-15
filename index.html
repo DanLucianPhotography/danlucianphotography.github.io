@@ -54,8 +54,8 @@ h2::after{content:'';display:block;width:50px;height:1px;background:var(--gold);
 .card b{display:block;font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:400;font-size:23px;color:var(--gl)}
 .card span{display:block;margin-top:6px;font-size:14px;color:var(--dim)}
 .intro{text-align:center;max-width:640px;margin:-20px auto 36px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:20px;color:var(--dim)}
-.gal{display:grid;grid-template-columns:repeat(3,1fr);gap:3px}
-.gal img{width:100%;aspect-ratio:4/5;object-fit:cover;cursor:pointer;display:block;background:#141210}
+.gal{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.al{position:relative;padding:0;border:0;background:#141210;cursor:pointer;color:inherit;font:inherit;text-align:left;overflow:hidden;aspect-ratio:4/5}.al img{width:100%;height:100%;object-fit:cover;display:block}.al::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(8,6,4,.88),transparent 55%)}.al div{position:absolute;left:16px;right:16px;bottom:16px;z-index:1}.al b{display:block;font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:400;font-size:24px;color:var(--gl);line-height:1.2}.al span{font-size:13px;color:var(--dim)}.cap{position:absolute;bottom:14px;left:0;right:0;text-align:center;font-size:14px;color:var(--dim)}
 .contact{text-align:center}
 .contact>p{color:var(--dim);margin:0 auto;max-width:520px}
 form{max-width:500px;margin:36px auto 0;display:flex;flex-direction:column;gap:14px;text-align:left}
@@ -142,15 +142,8 @@ section{padding:64px 6%}
 
 <section id="portofoliu" style="padding-top:0">
 <h2>Portofoliu</h2>
-<p class="intro">Lumină naturală, emoție și povești vizuale, surprinse exact cum se întâmplă.</p>
-<div class="gal" id="gal">
-<img src="images/galerie1.jpg.jpg" alt="Fotografie de nuntă în București" loading="lazy" decoding="async">
-<img src="images/galerie2.jpg.jpg" alt="Fotografie de nuntă, moment cu mirii" loading="lazy" decoding="async">
-<img src="images/galerie3.jpg.jpg" alt="Fotografie de botez și familie" loading="lazy" decoding="async">
-<img src="images/galerie4.jpg.jpg" alt="Fotografie de cununie" loading="lazy" decoding="async">
-<img src="images/galerie5.jpg.jpg" alt="Ședință foto de portret" loading="lazy" decoding="async">
-<img src="images/galerie6.jpg.jpg" alt="Fotografie de eveniment" loading="lazy" decoding="async">
-</div>
+<p class="intro">Alege un eveniment ca să vezi toată galeria lui.</p>
+<div class="gal" id="gal"></div>
 </section>
 
 <section id="contact" class="contact" style="padding-top:0">
@@ -186,6 +179,7 @@ section{padding:64px 6%}
 <button class="x" id="lx" aria-label="Închide">&times;</button>
 <button class="p" id="lp" aria-label="Înapoi">&#8249;</button>
 <img id="li" alt="">
+<div class="cap" id="lc"></div>
 <button class="n" id="ln" aria-label="Înainte">&#8250;</button>
 </div>
 
@@ -197,10 +191,21 @@ $('lk').onclick=function(){this.classList.remove('open')};
 /* slideshow */
 var s=document.querySelectorAll('.slide'),k=0;
 if(!matchMedia('(prefers-reduced-motion:reduce)').matches){setInterval(function(){s[k].classList.remove('on');k=(k+1)%s.length;s[k].classList.add('on')},5000)}
-/* galerie */
-var im=[].slice.call(document.querySelectorAll('#gal img')),c=0;
-function show(i){c=(i+im.length)%im.length;$('li').src=im[c].src;$('li').alt=im[c].alt;$('lb').style.display='flex'}
-im.forEach(function(e,i){e.onclick=function(){show(i)}});
+/* galerie: un album pentru fiecare eveniment */
+var ALBUME=[
+{titlu:'Botez Victor Ioan',baza:'albume/botez-victor-ioan/',nr:13},
+{titlu:'Botez Adriana-Antonia',baza:'albume/botez-adriana-antonia/',nr:23},
+{titlu:'Botez Olivia',baza:'albume/botez-olivia/',nr:12},
+{titlu:'Botez Kira Alexandra',baza:'albume/botez-kira-alexandra/',nr:19},
+{titlu:'Botez Cezar-Alexandru',baza:'albume/botez-cezar-alexandru/',nr:18}
+/* Album nou: pune virgulă după ultima acoladă și adaugă o linie ca asta:
+{titlu:'Nuntă Ana și Mihai',baza:'albume/nunta-ana-mihai/',nr:25}
+Pozele se numesc 1.jpg, 2.jpg ... 25.jpg în folderul albume/nunta-ana-mihai. Poza 1 e coperta. */
+];
+var cur=[],c=0,t='';
+function lista(a){if(a.imagini)return a.imagini;var r=[];for(var i=1;i<=a.nr;i++)r.push(a.baza+i+'.jpg');return r}
+function show(i){c=(i+cur.length)%cur.length;$('li').src=cur[c];$('li').alt=t+' '+(c+1);$('lc').textContent=t+': '+(c+1)+' / '+cur.length;$('lb').style.display='flex';new Image().src=cur[(c+1)%cur.length]}
+ALBUME.forEach(function(a){var l=lista(a),b=document.createElement('button');b.className='al';b.setAttribute('aria-label','Deschide galeria '+a.titlu);b.innerHTML='<img src="'+(a.coperta||l[0])+'" alt="'+a.titlu+'" loading="lazy" decoding="async"><div><b>'+a.titlu+'</b><span>'+l.length+' fotografii</span></div>';b.onclick=function(){cur=l;t=a.titlu;show(0)};$('gal').appendChild(b)});
 $('lx').onclick=function(){$('lb').style.display='none'};
 $('lp').onclick=function(){show(c-1)};$('ln').onclick=function(){show(c+1)};
 document.onkeydown=function(e){if($('lb').style.display!=='flex')return;if(e.key==='Escape')$('lx').click();if(e.key==='ArrowLeft')show(c-1);if(e.key==='ArrowRight')show(c+1)};
